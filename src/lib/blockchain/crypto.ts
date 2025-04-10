@@ -1,5 +1,5 @@
 
-import SHA256 from 'crypto-js/sha256';
+import * as CryptoJS from 'crypto-js';
 import EC from 'elliptic';
 
 // Initialize elliptic curve for crypto operations
@@ -46,7 +46,7 @@ export const verifySignature = (
  * Calculates SHA-256 hash of data
  */
 export const calculateHash = (data: string): string => {
-  return SHA256(data).toString();
+  return CryptoJS.SHA256(data).toString();
 };
 
 /**
