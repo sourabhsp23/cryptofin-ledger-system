@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { blockchain } from '../lib/blockchain/blockchain';
 import { Block, Transaction, Wallet, MiningState } from '../lib/blockchain/types';
 import { generateKeyPair, signData } from '../lib/blockchain/crypto';
+import blockchainApi from '../lib/api/blockchainApi';
 
 interface BlockchainState {
   chain: Block[];
@@ -17,10 +18,10 @@ interface BlockchainState {
   selectWallet: (publicKey: string) => void;
   getWalletBalance: (publicKey: string) => number;
   getTransactionsForAddress: (publicKey: string) => Transaction[];
-  createTransaction: (toAddress: string, amount: number) => boolean;
+  createTransaction: (toAddress: string, amount: number) => Promise<boolean>;
   startMining: () => void;
   stopMining: () => void;
-  refreshBlockchain: () => void;
+  refreshBlockchain: () => Promise<void>;
 }
 
 export const useBlockchainStore = create<BlockchainState>((set, get) => ({
@@ -51,6 +52,11 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
       const wallets = [newWallet];
       localStorage.setItem('cryptoWallets', JSON.stringify(wallets));
       set({ wallets, currentWallet: newWallet });
+      
+      // Save the wallet to the backend
+      blockchainApi.createWallet(newWallet).catch(err => {
+        console.error('Failed to save wallet to backend:', err);
+      });
     }
     
     // Refresh the blockchain data
@@ -68,6 +74,11 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
     const wallets = [...get().wallets, newWallet];
     localStorage.setItem('cryptoWallets', JSON.stringify(wallets));
     set({ wallets, currentWallet: newWallet });
+    
+    // Save the wallet to the backend
+    blockchainApi.createWallet(newWallet).catch(err => {
+      console.error('Failed to save wallet to backend:', err);
+    });
   },
   
   selectWallet: (publicKey: string) => {
@@ -85,7 +96,7 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
     return blockchain.getTransactionsForAddress(publicKey);
   },
   
-  createTransaction: (toAddress: string, amount: number) => {
+  createTransaction: async (toAddress: string, amount: number) => {
     const { currentWallet } = get();
     if (!currentWallet) return false;
     
@@ -115,15 +126,20 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
       signature
     };
     
-    // Add the transaction to pending transactions
-    const success = blockchain.addTransaction(transaction);
-    
-    // Refresh blockchain data
-    if (success) {
-      get().refreshBlockchain();
+    try {
+      // Add the transaction through the API
+      const success = await blockchainApi.createTransaction(transaction);
+      
+      // Refresh blockchain data
+      if (success) {
+        await get().refreshBlockchain();
+      }
+      
+      return success;
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+      return false;
     }
-    
-    return success;
   },
   
   startMining: () => {
@@ -133,31 +149,36 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
     set({ miningState: { ...miningState, isMining: true } });
     
     // Simulate mining in a separate "thread" with setInterval
-    const miningInterval = setInterval(() => {
+    const miningInterval = setInterval(async () => {
       if (!get().miningState.isMining) {
         clearInterval(miningInterval);
         return;
       }
       
-      // Mine the pending transactions
-      const startTime = Date.now();
-      const minedBlock = blockchain.minePendingTransactions(currentWallet.publicKey);
-      const endTime = Date.now();
-      
-      // Calculate hash rate (hashes per second)
-      const timeElapsed = (endTime - startTime) / 1000; // in seconds
-      const hashRate = Math.round(minedBlock.nonce / timeElapsed);
-      
-      // Update the state
-      set({
-        chain: blockchain.getChain(),
-        pendingTransactions: blockchain.getPendingTransactions(),
-        miningState: {
-          isMining: true,
-          hashRate,
-          lastMinedBlock: minedBlock
-        }
-      });
+      try {
+        // Mine the pending transactions via API
+        const startTime = Date.now();
+        const minedBlock = await blockchainApi.minePendingTransactions(
+          currentWallet.publicKey
+        );
+        const endTime = Date.now();
+        
+        // Calculate hash rate (hashes per second)
+        const timeElapsed = (endTime - startTime) / 1000; // in seconds
+        const hashRate = Math.round(minedBlock.nonce / timeElapsed);
+        
+        // Update the state
+        await get().refreshBlockchain();
+        set(state => ({
+          miningState: {
+            ...state.miningState,
+            hashRate,
+            lastMinedBlock: minedBlock
+          }
+        }));
+      } catch (error) {
+        console.error('Mining error:', error);
+      }
     }, 3000); // Mine every 3 seconds in this simulation
   },
   
@@ -170,29 +191,36 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
     }));
   },
   
-  refreshBlockchain: () => {
-    set({
-      chain: blockchain.getChain(),
-      pendingTransactions: blockchain.getPendingTransactions()
-    });
-    
-    // Update wallet balances
-    const updatedWallets = get().wallets.map(wallet => ({
-      ...wallet,
-      balance: blockchain.getBalanceOfAddress(wallet.publicKey)
-    }));
-    
-    set({ wallets: updatedWallets });
-    
-    // Update current wallet if exists
-    const currentWallet = get().currentWallet;
-    if (currentWallet) {
-      const updatedCurrentWallet = updatedWallets.find(
-        w => w.publicKey === currentWallet.publicKey
-      );
-      if (updatedCurrentWallet) {
-        set({ currentWallet: updatedCurrentWallet });
+  refreshBlockchain: async () => {
+    try {
+      // Fetch chain and pending transactions from API
+      const [chain, pendingTransactions] = await Promise.all([
+        blockchainApi.fetchBlocks(),
+        blockchainApi.fetchPendingTransactions()
+      ]);
+      
+      set({ chain, pendingTransactions });
+      
+      // Update wallet balances
+      const updatedWallets = get().wallets.map(wallet => ({
+        ...wallet,
+        balance: blockchain.getBalanceOfAddress(wallet.publicKey)
+      }));
+      
+      set({ wallets: updatedWallets });
+      
+      // Update current wallet if exists
+      const currentWallet = get().currentWallet;
+      if (currentWallet) {
+        const updatedCurrentWallet = updatedWallets.find(
+          w => w.publicKey === currentWallet.publicKey
+        );
+        if (updatedCurrentWallet) {
+          set({ currentWallet: updatedCurrentWallet });
+        }
       }
+    } catch (error) {
+      console.error('Error refreshing blockchain data:', error);
     }
   }
 }));
