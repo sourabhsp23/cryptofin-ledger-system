@@ -1,14 +1,16 @@
 
-import { useBlockchainStore } from '@/store/blockchainStore';
+import { useBlockchainStore, getTransactionsForAddress } from '@/store/blockchainStore';
+import { useWalletStore } from '@/store/walletStore';
 import TransactionList from '@/components/TransactionList';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowUp, ArrowDown, Search, Filter } from 'lucide-react';
+import { ArrowUp, ArrowDown, Search } from 'lucide-react';
 import { useState } from 'react';
 
 const TransactionsPage = () => {
-  const { chain, currentWallet, getTransactionsForAddress } = useBlockchainStore();
+  const { chain } = useBlockchainStore();
+  const { currentWallet } = useWalletStore();
   const [searchQuery, setSearchQuery] = useState('');
   
   // Get all transactions from the blockchain

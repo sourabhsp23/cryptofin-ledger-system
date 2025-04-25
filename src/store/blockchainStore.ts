@@ -53,37 +53,20 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
 // Register wallet balance calculator with WalletStore
 setWalletBalanceCalculator(useBlockchainStore.getState().getWalletBalance);
 
-// ===== PROXY GETTERS FOR BACKWARD COMPATIBILITY =====
-// This helps components that haven't been updated to use the new store structure
-
+// ===== EXPORT CONVENIENCE FUNCTIONS =====
 // Export common getters as a convenience
 export const getWalletBalance = (publicKey: string) => useBlockchainStore.getState().getWalletBalance(publicKey);
 export const getTransactionsForAddress = (publicKey: string) => useBlockchainStore.getState().getTransactionsForAddress(publicKey);
 
-// Expose wallet state and methods for components that still use useBlockchainStore
-Object.defineProperties(useBlockchainStore, {
-  currentWallet: {
-    get: () => useWalletStore.getState().currentWallet
-  },
-  wallets: {
-    get: () => useWalletStore.getState().wallets
-  },
-  createWallet: {
-    get: () => useWalletStore.getState().createWallet
-  },
-  selectWallet: {
-    get: () => useWalletStore.getState().selectWallet
-  },
-  initializeWallet: {
-    get: () => useWalletStore.getState().initializeWallet
-  },
-  startMining: {
-    get: () => useMiningStore.getState().startMining
-  },
-  stopMining: {
-    get: () => useMiningStore.getState().stopMining
-  },
-  createTransaction: {
-    get: () => useTransactionStore.getState().createTransaction
-  }
-});
+// These definitions are needed for modules that still import from blockchainStore
+// This removes circular dependencies
+export const getCurrentWallet = () => useWalletStore.getState().currentWallet;
+export const getWallets = () => useWalletStore.getState().wallets;
+export const createWallet = () => useWalletStore.getState().createWallet();
+export const selectWallet = (publicKey: string) => useWalletStore.getState().selectWallet(publicKey);
+export const initializeWallet = () => useWalletStore.getState().initializeWallet();
+export const startMining = () => useMiningStore.getState().startMining();
+export const stopMining = () => useMiningStore.getState().stopMining();
+export const createTransaction = (toAddress: string, amount: number) => {
+  return useTransactionStore.getState().createTransaction(toAddress, amount);
+};

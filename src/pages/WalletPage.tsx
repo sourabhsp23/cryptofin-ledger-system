@@ -1,5 +1,6 @@
 
-import { useBlockchainStore } from '@/store/blockchainStore';
+import { useWalletStore } from '@/store/walletStore';
+import { useBlockchainStore, getTransactionsForAddress } from '@/store/blockchainStore';
 import WalletCard from '@/components/WalletCard';
 import TransactionList from '@/components/TransactionList';
 import { Button } from '@/components/ui/button';
@@ -12,9 +13,8 @@ const WalletPage = () => {
     wallets,
     currentWallet,
     createWallet,
-    selectWallet,
-    getTransactionsForAddress
-  } = useBlockchainStore();
+    selectWallet
+  } = useWalletStore();
   
   const handleCreateWallet = () => {
     createWallet();
@@ -51,7 +51,7 @@ const WalletPage = () => {
         <div>
           <h2 className="text-xl font-bold">Your Wallets</h2>
           <p className="text-sm text-muted-foreground">
-            You have {wallets.length} wallet{wallets.length !== 1 ? 's' : ''}
+            You have {wallets?.length || 0} wallet{wallets?.length !== 1 ? 's' : ''}
           </p>
         </div>
         <Button onClick={handleCreateWallet}>
@@ -61,7 +61,7 @@ const WalletPage = () => {
       
       {/* Wallet Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {wallets.map((wallet) => (
+        {wallets?.map((wallet) => (
           <WalletCard
             key={wallet.publicKey}
             publicKey={wallet.publicKey}
@@ -69,7 +69,7 @@ const WalletPage = () => {
             isActive={currentWallet?.publicKey === wallet.publicKey}
             onSelect={() => handleSelectWallet(wallet.publicKey)}
           />
-        ))}
+        )) || null}
       </div>
       
       {/* Wallet Details (if a wallet is selected) */}

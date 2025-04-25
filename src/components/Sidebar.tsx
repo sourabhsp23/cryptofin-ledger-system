@@ -6,7 +6,7 @@ import {
   Database, Settings, Menu, X 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useWalletStore } from '../store/walletStore';
+import { useWalletStore } from '@/store/walletStore';
 import { cn } from '@/lib/utils';
 
 const Sidebar = () => {

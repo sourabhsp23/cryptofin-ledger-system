@@ -15,9 +15,7 @@ import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import { useBlockchainStore } from "./store/blockchainStore";
-
-// Remove the server import
-// import "./server/startServer";
+import { useWalletStore } from "./store/walletStore";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,12 +28,14 @@ const queryClient = new QueryClient({
 
 const App = () => {
   const { refreshBlockchain } = useBlockchainStore();
+  const { initializeWallet } = useWalletStore();
 
   useEffect(() => {
-    // Initialize blockchain data when the app starts
+    // Initialize wallet and blockchain data when the app starts
     console.log("App initialized");
+    initializeWallet();
     refreshBlockchain().catch(e => console.error("Error refreshing blockchain:", e));
-  }, [refreshBlockchain]);
+  }, [refreshBlockchain, initializeWallet]);
 
   return (
     <QueryClientProvider client={queryClient}>
