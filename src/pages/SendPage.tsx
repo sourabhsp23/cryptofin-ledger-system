@@ -1,11 +1,11 @@
 
 import SendCoinForm from '@/components/SendCoinForm';
-import { useBlockchainStore } from '@/store/blockchainStore';
+import { useWalletStore } from '@/store/walletStore';
 import WalletCard from '@/components/WalletCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const SendPage = () => {
-  const { currentWallet, wallets, selectWallet } = useBlockchainStore();
+  const { currentWallet, wallets, selectWallet } = useWalletStore();
   
   return (
     <div className="space-y-8">

@@ -6,13 +6,13 @@ import {
   Database, Settings, Menu, X 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useBlockchainStore } from '../store/blockchainStore';
+import { useWalletStore } from '../store/walletStore';
 import { cn } from '@/lib/utils';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
-  const currentWallet = useBlockchainStore(state => state.currentWallet);
+  const { currentWallet } = useWalletStore();
   
   const toggleSidebar = () => {
     setIsOpen(!isOpen);

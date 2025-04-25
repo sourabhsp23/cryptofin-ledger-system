@@ -5,13 +5,22 @@ import { generateKeyPair } from '../lib/blockchain/crypto';
 import blockchainApi from '../lib/api/blockchainApi';
 import { toast } from '@/components/ui/use-toast';
 
+// Forward declaration to avoid circular dependency
+// We will only use this function, not the whole store
+let getWalletBalance: (publicKey: string) => number = () => 0;
+
+// Function to set the wallet balance calculator from blockchainStore
+export const setWalletBalanceCalculator = (calculator: (publicKey: string) => number) => {
+  getWalletBalance = calculator;
+};
+
 interface WalletState {
   currentWallet: Wallet | null;
   wallets: Wallet[];
   initializeWallet: () => void;
   createWallet: () => void;
   selectWallet: (publicKey: string) => void;
-  updateWalletBalances: (chain: any[]) => void;
+  updateWalletBalances: () => void;
 }
 
 export const useWalletStore = create<WalletState>((set, get) => ({
@@ -82,9 +91,7 @@ export const useWalletStore = create<WalletState>((set, get) => ({
     }
   },
 
-  updateWalletBalances: (chain) => {
-    const { getWalletBalance } = useBlockchainStore.getState();
-    
+  updateWalletBalances: () => {
     const updatedWallets = get().wallets.map(wallet => ({
       ...wallet,
       balance: getWalletBalance(wallet.publicKey)

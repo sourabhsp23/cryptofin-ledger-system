@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { useBlockchainStore } from '@/store/blockchainStore';
+import { useWalletStore } from '@/store/walletStore';
+import { useTransactionStore } from '@/store/transactionStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,7 +15,8 @@ const SendCoinForm = () => {
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { currentWallet, createTransaction } = useBlockchainStore();
+  const { currentWallet } = useWalletStore();
+  const { createTransaction } = useTransactionStore();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

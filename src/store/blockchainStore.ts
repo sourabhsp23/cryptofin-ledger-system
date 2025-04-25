@@ -3,8 +3,7 @@ import { create } from 'zustand';
 import { Block, Transaction } from '../lib/blockchain/types';
 import { blockchain } from '../lib/blockchain/blockchain';
 import blockchainApi from '../lib/api/blockchainApi';
-import { toast } from '@/components/ui/use-toast';
-import { useWalletStore } from './walletStore';
+import { useWalletStore, setWalletBalanceCalculator } from './walletStore';
 import { useMiningStore } from './miningStore';
 import { useTransactionStore } from './transactionStore';
 
@@ -41,7 +40,7 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
       set({ chain, pendingTransactions });
       
       // Update wallet balances
-      useWalletStore.getState().updateWalletBalances(chain);
+      useWalletStore.getState().updateWalletBalances();
       
       console.log("Blockchain data refresh complete");
     } catch (error) {
@@ -51,19 +50,40 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
   }
 }));
 
-// Export everything for backward compatibility
-export const {
-  initializeWallet,
-  createWallet,
-  selectWallet,
-  startMining,
-  stopMining,
-  createTransaction
-} = {
-  initializeWallet: useWalletStore.getState().initializeWallet,
-  createWallet: useWalletStore.getState().createWallet,
-  selectWallet: useWalletStore.getState().selectWallet,
-  startMining: useMiningStore.getState().startMining,
-  stopMining: useMiningStore.getState().stopMining,
-  createTransaction: useTransactionStore.getState().createTransaction
-};
+// Register wallet balance calculator with WalletStore
+setWalletBalanceCalculator(useBlockchainStore.getState().getWalletBalance);
+
+// ===== PROXY GETTERS FOR BACKWARD COMPATIBILITY =====
+// This helps components that haven't been updated to use the new store structure
+
+// Export common getters as a convenience
+export const getWalletBalance = (publicKey: string) => useBlockchainStore.getState().getWalletBalance(publicKey);
+export const getTransactionsForAddress = (publicKey: string) => useBlockchainStore.getState().getTransactionsForAddress(publicKey);
+
+// Expose wallet state and methods for components that still use useBlockchainStore
+Object.defineProperties(useBlockchainStore, {
+  currentWallet: {
+    get: () => useWalletStore.getState().currentWallet
+  },
+  wallets: {
+    get: () => useWalletStore.getState().wallets
+  },
+  createWallet: {
+    get: () => useWalletStore.getState().createWallet
+  },
+  selectWallet: {
+    get: () => useWalletStore.getState().selectWallet
+  },
+  initializeWallet: {
+    get: () => useWalletStore.getState().initializeWallet
+  },
+  startMining: {
+    get: () => useMiningStore.getState().startMining
+  },
+  stopMining: {
+    get: () => useMiningStore.getState().stopMining
+  },
+  createTransaction: {
+    get: () => useTransactionStore.getState().createTransaction
+  }
+});
