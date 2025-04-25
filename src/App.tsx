@@ -13,28 +13,46 @@ import SendPage from "./pages/SendPage";
 import ExplorerPage from "./pages/ExplorerPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
+import { useEffect } from "react";
 
-const queryClient = new QueryClient();
+// Import server starter
+import "./server/startServer";
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout><Dashboard /></Layout>} />
-          <Route path="/wallet" element={<Layout><WalletPage /></Layout>} />
-          <Route path="/transactions" element={<Layout><TransactionsPage /></Layout>} />
-          <Route path="/mining" element={<Layout><MiningPage /></Layout>} />
-          <Route path="/send" element={<Layout><SendPage /></Layout>} />
-          <Route path="/explorer" element={<Layout><ExplorerPage /></Layout>} />
-          <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false
+    },
+  }
+});
+
+const App = () => {
+  useEffect(() => {
+    // Initialize blockchain data when the app starts
+    console.log("App initialized");
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout><Dashboard /></Layout>} />
+            <Route path="/wallet" element={<Layout><WalletPage /></Layout>} />
+            <Route path="/transactions" element={<Layout><TransactionsPage /></Layout>} />
+            <Route path="/mining" element={<Layout><MiningPage /></Layout>} />
+            <Route path="/send" element={<Layout><SendPage /></Layout>} />
+            <Route path="/explorer" element={<Layout><ExplorerPage /></Layout>} />
+            <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

@@ -16,7 +16,7 @@ const SendCoinForm = () => {
   
   const { currentWallet, createTransaction } = useBlockchainStore();
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!currentWallet) {
@@ -49,27 +49,24 @@ const SendCoinForm = () => {
     
     setIsLoading(true);
     
-    // Process the transaction
-    const success = createTransaction(recipient, amountNum);
-    
-    setIsLoading(false);
-    
-    if (success) {
-      // Clear the form
-      setRecipient('');
-      setAmount('');
+    try {
+      // Process the transaction
+      const success = await createTransaction(recipient, amountNum);
       
+      if (success) {
+        // Clear the form
+        setRecipient('');
+        setAmount('');
+      }
+    } catch (error) {
+      console.error("Transaction error:", error);
       toast({
-        title: "Transaction Created",
-        description: `Successfully sent ${amountNum} coins to the recipient.`,
-        variant: "default"
-      });
-    } else {
-      toast({
-        title: "Transaction Failed",
-        description: "There was a problem creating the transaction. Please check your balance and try again.",
+        title: "Transaction Error",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
   
