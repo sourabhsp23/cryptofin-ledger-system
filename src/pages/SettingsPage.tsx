@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { useBlockchainStore } from '@/store/blockchainStore';
+import { useWalletStore } from '@/store/walletStore';
 import { Settings, Shield, Database, Wallet, AlertTriangle } from 'lucide-react';
 
 const SettingsPage = () => {
@@ -14,7 +14,7 @@ const SettingsPage = () => {
   const [autoMining, setAutoMining] = useState(false);
   const [confirmation, setConfirmation] = useState(1);
   
-  const { wallets } = useBlockchainStore();
+  const { wallets } = useWalletStore();
   
   const handleSave = () => {
     toast({
