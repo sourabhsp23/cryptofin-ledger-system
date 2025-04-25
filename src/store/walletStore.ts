@@ -83,9 +83,11 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   },
 
   updateWalletBalances: (chain) => {
+    const { getWalletBalance } = useBlockchainStore.getState();
+    
     const updatedWallets = get().wallets.map(wallet => ({
       ...wallet,
-      balance: blockchain.getBalanceOfAddress(wallet.publicKey)
+      balance: getWalletBalance(wallet.publicKey)
     }));
     
     set({ wallets: updatedWallets });

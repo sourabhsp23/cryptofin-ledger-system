@@ -14,6 +14,7 @@ import ExplorerPage from "./pages/ExplorerPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
+import { useBlockchainStore } from "./store/blockchainStore";
 
 // Remove the server import
 // import "./server/startServer";
@@ -28,10 +29,13 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  const { refreshBlockchain } = useBlockchainStore();
+
   useEffect(() => {
     // Initialize blockchain data when the app starts
     console.log("App initialized");
-  }, []);
+    refreshBlockchain().catch(e => console.error("Error refreshing blockchain:", e));
+  }, [refreshBlockchain]);
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -1,5 +1,5 @@
-
-import { useBlockchainStore } from '@/store/blockchainStore';
+import { useWalletStore } from '@/store/walletStore';
+import { useMiningStore } from '@/store/miningStore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -8,7 +8,8 @@ import { useToast } from '@/components/ui/use-toast';
 
 const MiningStatus = () => {
   const { toast } = useToast();
-  const { miningState, startMining, stopMining, currentWallet } = useBlockchainStore();
+  const { currentWallet } = useWalletStore();
+  const { miningState, startMining, stopMining } = useMiningStore();
   
   const handleStartMining = () => {
     startMining();

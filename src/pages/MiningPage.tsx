@@ -1,5 +1,6 @@
-
 import { useBlockchainStore } from '@/store/blockchainStore';
+import { useWalletStore } from '@/store/walletStore';
+import { useMiningStore } from '@/store/miningStore';
 import MiningStatus from '@/components/MiningStatus';
 import BlockCard from '@/components/BlockCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +8,9 @@ import { Activity, Cpu, Award } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 const MiningPage = () => {
-  const { chain, miningState, currentWallet } = useBlockchainStore();
+  const { chain } = useBlockchainStore();
+  const { miningState } = useMiningStore();
+  const { currentWallet } = useWalletStore();
   
   // Get the latest 3 blocks
   const latestBlocks = [...chain].reverse().slice(0, 3);

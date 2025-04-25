@@ -1,5 +1,6 @@
-
 import { useBlockchainStore } from '@/store/blockchainStore';
+import { useWalletStore } from '@/store/walletStore';
+import { useMiningStore } from '@/store/miningStore';
 import { Wallet, Activity, Cpu, Send } from 'lucide-react';
 import StatCard from '@/components/StatCard';
 import TransactionList from '@/components/TransactionList';
@@ -10,13 +11,9 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
-  const {
-    chain,
-    pendingTransactions,
-    currentWallet,
-    getTransactionsForAddress,
-    miningState
-  } = useBlockchainStore();
+  const { chain, pendingTransactions, getTransactionsForAddress } = useBlockchainStore();
+  const { currentWallet } = useWalletStore();
+  const { miningState } = useMiningStore();
   
   // Get the latest blocks (max 3)
   const latestBlocks = [...chain].reverse().slice(0, 3);

@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { Block, MiningState } from '../lib/blockchain/types';
 import blockchainApi from '../lib/api/blockchainApi';
 import { toast } from '@/components/ui/use-toast';
+import { useWalletStore } from './walletStore';
 
 interface MiningStoreState {
   miningState: MiningState;
@@ -35,6 +36,12 @@ export const useMiningStore = create<MiningStoreState>((set, get) => ({
         // Mine the pending transactions via API
         console.log("Mining attempt...");
         const startTime = Date.now();
+        const currentWallet = useWalletStore.getState().currentWallet;
+        if (!currentWallet) {
+          console.error("No wallet selected for mining");
+          return;
+        }
+        
         const minedBlock = await blockchainApi.minePendingTransactions(
           currentWallet.publicKey
         );

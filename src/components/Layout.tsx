@@ -1,7 +1,7 @@
 
 import { ReactNode } from 'react';
 import Sidebar from './Sidebar';
-import { useBlockchainStore } from '../store/blockchainStore';
+import { useWalletStore } from '@/store/walletStore';
 import { useEffect } from 'react';
 
 interface LayoutProps {
@@ -9,7 +9,7 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
-  const initializeWallet = useBlockchainStore(state => state.initializeWallet);
+  const initializeWallet = useWalletStore(state => state.initializeWallet);
   
   useEffect(() => {
     // Initialize blockchain and wallet on app startup

@@ -5,6 +5,7 @@ import { signData } from '../lib/blockchain/crypto';
 import blockchainApi from '../lib/api/blockchainApi';
 import { toast } from '@/components/ui/use-toast';
 import { useWalletStore } from './walletStore';
+import { useBlockchainStore } from './blockchainStore';
 
 interface TransactionState {
   createTransaction: (toAddress: string, amount: number) => Promise<boolean>;
@@ -16,7 +17,7 @@ export const useTransactionStore = create<TransactionState>(() => ({
     if (!currentWallet) return false;
     
     const fromAddress = currentWallet.publicKey;
-    const fromBalance = blockchain.getBalanceOfAddress(fromAddress);
+    const fromBalance = useBlockchainStore.getState().getWalletBalance(fromAddress);
     
     console.log(`Creating transaction: ${fromAddress} → ${toAddress}, amount: ${amount}, balance: ${fromBalance}`);
     
