@@ -1,4 +1,9 @@
 
+/**
+ * This file is meant to be run directly with Node.js, not imported into the browser.
+ * Run it with: node dist/server/startServer.js after building the project.
+ */
+
 import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';

@@ -1,7 +1,11 @@
 
 import { Block, Transaction, Wallet } from '../blockchain/types';
 
-const API_URL = '/api';
+// In development, use the correct URL for your server
+// In production, you might use a relative URL or the deployed backend URL
+const API_URL = import.meta.env.PROD 
+  ? '/api'  // In production, we'd use a relative path or specific domain
+  : 'http://localhost:3001/api'; // In development, connect to local server
 
 // Helper function for fetch with better error handling and logging
 const fetchWithErrorHandling = async (url: string, options?: RequestInit) => {

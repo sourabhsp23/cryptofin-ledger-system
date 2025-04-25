@@ -15,8 +15,8 @@ import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 
-// Import server starter
-import "./server/startServer";
+// Remove the server import
+// import "./server/startServer";
 
 const queryClient = new QueryClient({
   defaultOptions: {
