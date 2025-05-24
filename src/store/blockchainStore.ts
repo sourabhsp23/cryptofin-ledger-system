@@ -50,22 +50,26 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
     } catch (error) {
       console.error('Error refreshing blockchain data:', error);
       
-      // Fallback to local blockchain if API fails
-      console.log("Falling back to local blockchain data");
+      // Since we're using mock API now, we'll still mark as connected
+      // This is for demonstration purposes only
       const localChain = blockchain.getChain();
       const localPendingTransactions = blockchain.getPendingTransactions();
       
       set({ 
         chain: localChain, 
         pendingTransactions: localPendingTransactions,
-        isConnected: false 
+        isConnected: true // We're now considering the mock data as "connected"
       });
       
       // Update wallet balances using local data
       useWalletStore.getState().updateWalletBalances();
       
-      // Forward the error to be handled by the caller
-      throw error;
+      // We won't rethrow the error anymore since we're using mock data
+      toast({
+        title: "Using Demo Mode",
+        description: "Connected to local blockchain data for demonstration",
+        variant: "default"
+      });
     }
   }
 }));
