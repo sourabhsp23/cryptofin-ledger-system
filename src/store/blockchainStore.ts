@@ -6,10 +6,12 @@ import blockchainApi from '../lib/api/blockchainApi';
 import { useWalletStore, setWalletBalanceCalculator } from './walletStore';
 import { useMiningStore } from './miningStore';
 import { useTransactionStore } from './transactionStore';
+import { toast } from '@/components/ui/use-toast';
 
 interface BlockchainState {
   chain: Block[];
   pendingTransactions: Transaction[];
+  isConnected: boolean;
   getWalletBalance: (publicKey: string) => number;
   getTransactionsForAddress: (publicKey: string) => Transaction[];
   refreshBlockchain: () => Promise<void>;
@@ -18,6 +20,7 @@ interface BlockchainState {
 export const useBlockchainStore = create<BlockchainState>((set, get) => ({
   chain: blockchain.getChain(),
   pendingTransactions: blockchain.getPendingTransactions(),
+  isConnected: false,
   
   getWalletBalance: (publicKey: string) => {
     return blockchain.getBalanceOfAddress(publicKey);
@@ -31,13 +34,14 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
     try {
       console.log("Refreshing blockchain data...");
       
+      // Try to fetch data from API
       const [chain, pendingTransactions] = await Promise.all([
         blockchainApi.fetchBlocks(),
         blockchainApi.fetchPendingTransactions()
       ]);
       
       console.log(`Fetched ${chain.length} blocks and ${pendingTransactions.length} pending transactions`);
-      set({ chain, pendingTransactions });
+      set({ chain, pendingTransactions, isConnected: true });
       
       // Update wallet balances
       useWalletStore.getState().updateWalletBalances();
@@ -45,6 +49,22 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
       console.log("Blockchain data refresh complete");
     } catch (error) {
       console.error('Error refreshing blockchain data:', error);
+      
+      // Fallback to local blockchain if API fails
+      console.log("Falling back to local blockchain data");
+      const localChain = blockchain.getChain();
+      const localPendingTransactions = blockchain.getPendingTransactions();
+      
+      set({ 
+        chain: localChain, 
+        pendingTransactions: localPendingTransactions,
+        isConnected: false 
+      });
+      
+      // Update wallet balances using local data
+      useWalletStore.getState().updateWalletBalances();
+      
+      // Forward the error to be handled by the caller
       throw error;
     }
   }

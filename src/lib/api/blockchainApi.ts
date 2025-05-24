@@ -1,11 +1,9 @@
 
 import { Block, Transaction, Wallet } from '../blockchain/types';
 
-// In development, use the correct URL for your server
-// In production, you might use a relative URL or the deployed backend URL
-const API_URL = import.meta.env.PROD 
-  ? '/api'  // In production, we'd use a relative path or specific domain
-  : 'http://localhost:3001/api'; // In development, connect to local server
+// Set up a proper API URL that works in the Lovable environment
+// The API is served at the same origin in this setup
+const API_URL = ''; // Empty string will make requests relative to the current domain
 
 // Helper function for fetch with better error handling and logging
 const fetchWithErrorHandling = async (url: string, options?: RequestInit) => {
@@ -30,28 +28,28 @@ const fetchWithErrorHandling = async (url: string, options?: RequestInit) => {
 
 // Fetch all blocks
 export const fetchBlocks = async (): Promise<Block[]> => {
-  return fetchWithErrorHandling(`${API_URL}/blocks`);
+  return fetchWithErrorHandling(`${API_URL}/api/blocks`);
 };
 
 // Fetch a specific block
 export const fetchBlock = async (hash: string): Promise<Block> => {
-  return fetchWithErrorHandling(`${API_URL}/blocks/${hash}`);
+  return fetchWithErrorHandling(`${API_URL}/api/blocks/${hash}`);
 };
 
 // Fetch transactions for an address
 export const fetchTransactionsForAddress = async (address: string): Promise<Transaction[]> => {
-  return fetchWithErrorHandling(`${API_URL}/transactions/${address}`);
+  return fetchWithErrorHandling(`${API_URL}/api/transactions/${address}`);
 };
 
 // Fetch pending transactions
 export const fetchPendingTransactions = async (): Promise<Transaction[]> => {
-  return fetchWithErrorHandling(`${API_URL}/transactions/pending`);
+  return fetchWithErrorHandling(`${API_URL}/api/transactions/pending`);
 };
 
 // Create a new transaction
 export const createTransaction = async (transaction: Transaction): Promise<boolean> => {
   try {
-    await fetchWithErrorHandling(`${API_URL}/transactions`, {
+    await fetchWithErrorHandling(`${API_URL}/api/transactions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,7 +65,7 @@ export const createTransaction = async (transaction: Transaction): Promise<boole
 
 // Mine pending transactions
 export const minePendingTransactions = async (minerAddress: string): Promise<Block> => {
-  return fetchWithErrorHandling(`${API_URL}/mine`, {
+  return fetchWithErrorHandling(`${API_URL}/api/mine`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -78,12 +76,12 @@ export const minePendingTransactions = async (minerAddress: string): Promise<Blo
 
 // Fetch wallet info
 export const fetchWallet = async (publicKey: string): Promise<Wallet> => {
-  return fetchWithErrorHandling(`${API_URL}/wallets/${publicKey}`);
+  return fetchWithErrorHandling(`${API_URL}/api/wallets/${publicKey}`);
 };
 
 // Create a new wallet
 export const createWallet = async (wallet: Wallet): Promise<Wallet> => {
-  return fetchWithErrorHandling(`${API_URL}/wallets`, {
+  return fetchWithErrorHandling(`${API_URL}/api/wallets`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -94,7 +92,7 @@ export const createWallet = async (wallet: Wallet): Promise<Wallet> => {
 
 // Fetch all wallets
 export const fetchWallets = async (): Promise<Wallet[]> => {
-  return fetchWithErrorHandling(`${API_URL}/wallets`);
+  return fetchWithErrorHandling(`${API_URL}/api/wallets`);
 };
 
 export default {

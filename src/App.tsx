@@ -16,12 +16,21 @@ import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import { useBlockchainStore } from "./store/blockchainStore";
 import { useWalletStore } from "./store/walletStore";
+import { toast } from "./components/ui/use-toast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus: false,
+      onError: (error) => {
+        console.log("Query error:", error);
+        toast({
+          title: "Connection Error",
+          description: "Failed to connect to blockchain server. Using local data instead.",
+          variant: "destructive"
+        });
+      }
     },
   }
 });
@@ -34,7 +43,16 @@ const App = () => {
     // Initialize wallet and blockchain data when the app starts
     console.log("App initialized");
     initializeWallet();
-    refreshBlockchain().catch(e => console.error("Error refreshing blockchain:", e));
+    
+    // Try to refresh blockchain data, but handle the error gracefully
+    refreshBlockchain().catch(e => {
+      console.error("Error refreshing blockchain:", e);
+      toast({
+        title: "Server Connection Failed",
+        description: "Working with local blockchain data only. Some features may be limited.",
+        variant: "destructive"
+      });
+    });
   }, [refreshBlockchain, initializeWallet]);
 
   return (
