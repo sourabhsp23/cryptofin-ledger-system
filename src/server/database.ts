@@ -1,4 +1,6 @@
 
+// Only import sqlite3 on the server side, not in the browser
+// TypeScript will understand the type from our type definitions
 import sqlite3 from 'sqlite3';
 import { promisify } from 'util';
 import { Block, Transaction, Wallet } from '../lib/blockchain/types';

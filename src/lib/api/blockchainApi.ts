@@ -1,3 +1,4 @@
+
 import { Block, Transaction, Wallet } from '../blockchain/types';
 
 // Set up a proper API URL that works in the Lovable environment
