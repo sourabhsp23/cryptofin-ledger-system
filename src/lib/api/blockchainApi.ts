@@ -1,28 +1,38 @@
-
 import { Block, Transaction, Wallet } from '../blockchain/types';
 
 // Set up a proper API URL that works in the Lovable environment
 // The API is served at the same origin in this setup
 const API_URL = ''; // Empty string will make requests relative to the current domain
 
+// Flag to determine if we're running in a browser environment
+const isBrowser = typeof window !== 'undefined';
+
 // Helper function for fetch with better error handling and logging
 const fetchWithErrorHandling = async (url: string, options?: RequestInit) => {
   console.log(`API Request: ${url}`);
-  try {
-    const response = await fetch(url, options);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`API Error (${response.status}): ${errorText}`);
-      throw new Error(`API Error (${response.status}): ${errorText}`);
+  
+  // In browser environment, proceed with fetch
+  if (isBrowser) {
+    try {
+      const response = await fetch(url, options);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`API Error (${response.status}): ${errorText}`);
+        throw new Error(`API Error (${response.status}): ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log(`API Response from ${url}:`, data);
+      return data;
+    } catch (error) {
+      console.error(`API Request Failed for ${url}:`, error);
+      throw error;
     }
-    
-    const data = await response.json();
-    console.log(`API Response from ${url}:`, data);
-    return data;
-  } catch (error) {
-    console.error(`API Request Failed for ${url}:`, error);
-    throw error;
+  } else {
+    // For non-browser environments (this code won't run in the browser)
+    console.log('Not in browser environment, fetch not available');
+    throw new Error('Fetch not available in this environment');
   }
 };
 
