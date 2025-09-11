@@ -23,14 +23,6 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      onError: (error) => {
-        console.log("Query error:", error);
-        toast({
-          title: "Connection Error",
-          description: "Failed to connect to blockchain server. Using local data instead.",
-          variant: "destructive"
-        });
-      }
     },
   }
 });

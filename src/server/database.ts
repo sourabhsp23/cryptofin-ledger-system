@@ -1,28 +1,44 @@
 
-// Only import sqlite3 on the server side, not in the browser
-// TypeScript will understand the type from our type definitions
-import sqlite3 from 'sqlite3';
-import { promisify } from 'util';
-import { Block, Transaction, Wallet } from '../lib/blockchain/types';
-import fs from 'fs';
-import path from 'path';
+// This file is server-only and should not be imported in the browser
+// All server-side database operations are handled here
+let sqlite3: any;
+let fs: any;
+let path: any;
 
-console.log('Setting up database connection...');
-
-// Make sure the database directory exists
-const dbDir = path.dirname('./blockchain.db');
-if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir, { recursive: true });
+// Only import these modules on the server side
+if (typeof window === 'undefined') {
+  try {
+    sqlite3 = require('sqlite3');
+    fs = require('fs');
+    path = require('path');
+  } catch (error) {
+    console.warn('Server modules not available in browser environment');
+  }
 }
 
-// Open database connection
-const db = new sqlite3.Database('./blockchain.db', (err) => {
-  if (err) {
-    console.error('Database connection error:', err.message);
-  } else {
-    console.log('Connected to the SQLite database.');
+import { Block, Transaction, Wallet } from '../lib/blockchain/types';
+
+// Database connection - only in server environment
+let db: any = null;
+
+if (typeof window === 'undefined' && sqlite3 && fs && path) {
+  console.log('Setting up database connection...');
+  
+  // Make sure the database directory exists
+  const dbDir = path.dirname('./blockchain.db');
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
   }
-});
+
+  // Open database connection
+  db = new sqlite3.Database('./blockchain.db', (err: any) => {
+    if (err) {
+      console.error('Database connection error:', err.message);
+    } else {
+      console.log('Connected to the SQLite database.');
+    }
+  });
+}
 
 // Promisify db methods
 const runAsync = (sql: string, params: any[] = []): Promise<any> => {
@@ -66,6 +82,11 @@ const allAsync = (sql: string, params: any[] = []): Promise<any[]> => {
 
 // Initialize database tables
 export const initializeDatabase = async () => {
+  if (!db) {
+    console.warn('Database not available - running in browser mode');
+    return false;
+  }
+  
   console.log('Creating database tables if they don\'t exist...');
   
   try {
@@ -113,6 +134,11 @@ export const initializeDatabase = async () => {
 
 // Block methods
 export const saveBlock = async (block: Block) => {
+  if (!db) {
+    console.warn('Database not available - running in browser mode');
+    return;
+  }
+  
   const { hash, timestamp, previousHash, nonce, transactions } = block;
   try {
     console.log(`Saving block ${hash} to database`);
@@ -128,6 +154,11 @@ export const saveBlock = async (block: Block) => {
 };
 
 export const getBlock = async (hash: string): Promise<Block | null> => {
+  if (!db) {
+    console.warn('Database not available - running in browser mode');
+    return null;
+  }
+  
   try {
     console.log(`Fetching block ${hash} from database`);
     const block = await getAsync('SELECT * FROM blocks WHERE hash = ?', [hash]);
@@ -150,6 +181,11 @@ export const getBlock = async (hash: string): Promise<Block | null> => {
 };
 
 export const getAllBlocks = async (): Promise<Block[]> => {
+  if (!db) {
+    console.warn('Database not available - running in browser mode');
+    return [];
+  }
+  
   try {
     console.log('Fetching all blocks from database');
     const blocks = await allAsync('SELECT * FROM blocks ORDER BY timestamp DESC');
@@ -170,6 +206,11 @@ export const getAllBlocks = async (): Promise<Block[]> => {
 
 // Transaction methods
 export const saveTransaction = async (transaction: Transaction, blockHash?: string) => {
+  if (!db) {
+    console.warn('Database not available - running in browser mode');
+    return;
+  }
+  
   try {
     const { fromAddress, toAddress, amount, timestamp, signature } = transaction;
     console.log(`Saving transaction from ${fromAddress || 'system'} to ${toAddress}`);
@@ -187,6 +228,11 @@ export const saveTransaction = async (transaction: Transaction, blockHash?: stri
 };
 
 export const getTransactionsForAddress = async (address: string): Promise<Transaction[]> => {
+  if (!db) {
+    console.warn('Database not available - running in browser mode');
+    return [];
+  }
+  
   try {
     console.log(`Fetching transactions for address ${address}`);
     const transactions = await allAsync(
@@ -202,6 +248,11 @@ export const getTransactionsForAddress = async (address: string): Promise<Transa
 };
 
 export const getPendingTransactions = async (): Promise<Transaction[]> => {
+  if (!db) {
+    console.warn('Database not available - running in browser mode');
+    return [];
+  }
+  
   try {
     console.log('Fetching pending transactions');
     const transactions = await allAsync('SELECT * FROM transactions WHERE blockHash IS NULL');
@@ -215,6 +266,11 @@ export const getPendingTransactions = async (): Promise<Transaction[]> => {
 
 // Wallet methods
 export const saveWallet = async (wallet: Wallet) => {
+  if (!db) {
+    console.warn('Database not available - running in browser mode');
+    return;
+  }
+  
   try {
     const { publicKey, privateKey, balance } = wallet;
     console.log(`Saving wallet ${publicKey.substring(0, 10)}...`);
@@ -232,6 +288,11 @@ export const saveWallet = async (wallet: Wallet) => {
 };
 
 export const getWallet = async (publicKey: string): Promise<Wallet | null> => {
+  if (!db) {
+    console.warn('Database not available - running in browser mode');
+    return null;
+  }
+  
   try {
     console.log(`Fetching wallet ${publicKey.substring(0, 10)}...`);
     return await getAsync('SELECT * FROM wallets WHERE publicKey = ?', [publicKey]);
@@ -242,6 +303,11 @@ export const getWallet = async (publicKey: string): Promise<Wallet | null> => {
 };
 
 export const getAllWallets = async (): Promise<Wallet[]> => {
+  if (!db) {
+    console.warn('Database not available - running in browser mode');
+    return [];
+  }
+  
   try {
     console.log('Fetching all wallets');
     const wallets = await allAsync('SELECT * FROM wallets');
@@ -254,6 +320,11 @@ export const getAllWallets = async (): Promise<Wallet[]> => {
 };
 
 export const updateWalletBalance = async (publicKey: string, balance: number) => {
+  if (!db) {
+    console.warn('Database not available - running in browser mode');
+    return;
+  }
+  
   try {
     console.log(`Updating wallet ${publicKey.substring(0, 10)} balance to ${balance}`);
     await runAsync(
