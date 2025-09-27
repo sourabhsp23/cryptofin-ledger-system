@@ -1,54 +1,91 @@
-# Welcome to your Lovable project
+# Blockchain Finance App
 
-## Project info
+A modern blockchain-based financial application built with React, TypeScript, and Tailwind CSS. This application provides a complete cryptocurrency wallet experience with mining, transactions, and blockchain exploration capabilities.
 
-**URL**: https://lovable.dev/projects/dd458b8e-44c6-41ba-8dee-7686ca8b33db
+## 🚀 Features
 
-## How can I edit this code?
+### Core Functionality
+- **Wallet Management**: Create and manage multiple cryptocurrency wallets
+- **Send & Receive**: Transfer coins between wallet addresses
+- **Transaction History**: View detailed transaction records
+- **Mining**: Mine new blocks and earn rewards
+- **Block Explorer**: Browse the blockchain and view block details
 
-There are several ways of editing your application.
+### Dashboard & Analytics
+- **Real-time Balance**: Monitor wallet balances and total holdings
+- **Transaction Statistics**: Track transaction counts and mining status
+- **Recent Activity**: View latest transactions and blocks
+- **Mining Status**: Monitor mining operations and rewards
 
-**Use Lovable**
+### User Interface
+- **Responsive Design**: Works seamlessly on desktop and mobile
+- **Dark/Light Theme**: Toggle between visual themes
+- **Modern UI**: Clean interface built with shadcn/ui components
+- **Real-time Updates**: Live data synchronization
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/dd458b8e-44c6-41ba-8dee-7686ca8b33db) and start prompting.
+## 🛠️ Technical Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+### Frontend
+- **React 18**: Modern React with hooks and functional components
+- **TypeScript**: Full type safety and enhanced developer experience
+- **Tailwind CSS**: Utility-first CSS framework
+- **shadcn/ui**: Beautiful and accessible UI components
+- **Zustand**: Lightweight state management
+- **React Router**: Client-side routing
+- **React Query**: Data fetching and caching
 
-**Use your preferred IDE**
+### Backend & Blockchain
+- **Express.js**: REST API server
+- **SQLite**: Local database for blockchain data
+- **Elliptic**: Cryptographic operations
+- **Crypto-JS**: Additional cryptographic utilities
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🏃‍♂️ Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
+- Node.js 18+ and npm
+- Modern web browser
 
-Follow these steps:
+### Installation
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+```bash
+# Clone the repository
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Development with Lovable
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+This project was built with [Lovable](https://lovable.dev), which provides:
+- **Live Editing**: Make changes and see them instantly
+- **AI-Powered Development**: Use natural language to modify your app
+- **Real-time Collaboration**: Share and iterate with your team
 
-**Use GitHub Codespaces**
+Visit your [Lovable Project](https://lovable.dev/projects/dd458b8e-44c6-41ba-8dee-7686ca8b33db) to continue development.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📱 Application Structure
+
+### Pages
+- **Dashboard** (`/`): Main overview with stats and recent activity
+- **Wallet** (`/wallet`): Wallet management and creation
+- **Send** (`/send`): Send coins to other addresses
+- **Transactions** (`/transactions`): Complete transaction history
+- **Mining** (`/mining`): Mining operations and controls
+- **Explorer** (`/explorer`): Blockchain and block exploration
+- **Settings** (`/settings`): Application configuration
+
+### Key Components
+- **WalletCard**: Display wallet information and balances
+- **TransactionList**: Show transaction history
+- **BlockCard**: Display blockchain blocks
+- **SendCoinForm**: Transfer coins between addresses
+- **MiningStatus**: Show mining operations and controls
 
 ## What technologies are used for this project?
 
