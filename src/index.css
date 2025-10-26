@@ -79,3 +79,26 @@
   --font-geist-sans: "Geist Sans", sans-serif;
   --font-geist-mono: "Geist Mono", monospace;
 }
+
+/* OKLCH Color System - Enhanced design tokens */
+.dark {
+  --background-oklch: oklch(0 0 0);
+  --foreground-oklch: oklch(1 0 0);
+  --card-oklch: oklch(0.1 0 0 / 0.1);
+  --card-foreground-oklch: oklch(1 0 0);
+  --popover-oklch: oklch(0 0 0 / 0.8);
+  --popover-foreground-oklch: oklch(1 0 0);
+  --primary-oklch: oklch(1 0 0);
+  --primary-foreground-oklch: oklch(0 0 0);
+  --secondary-oklch: oklch(0.65 0.25 25);
+  --secondary-foreground-oklch: oklch(1 0 0);
+  --muted-oklch: oklch(1 0 0 / 0.5);
+  --muted-foreground-oklch: oklch(0.7 0 0);
+  --accent-oklch: oklch(0.65 0.25 25);
+  --accent-foreground-oklch: oklch(1 0 0);
+  --destructive-oklch: oklch(0.6 0.25 15);
+  --destructive-foreground-oklch: oklch(1 0 0);
+  --border-oklch: oklch(1 0 0 / 0.2);
+  --input-oklch: oklch(1 0 0 / 0.1);
+  --ring-oklch: oklch(1 0 0 / 0.3);
+}

@@ -82,6 +82,7 @@ export function ShaderPlane({
     <mesh ref={mesh} position={position}>
       <planeGeometry args={[2, 2, 32, 32]} />
       <shaderMaterial
+        attach="material"
         args={[{
           uniforms,
           vertexShader,
@@ -114,6 +115,7 @@ export function EnergyRing({
     <mesh ref={mesh} position={position}>
       <ringGeometry args={[radius * 0.8, radius, 32]} />
       <meshBasicMaterial 
+        attach="material"
         args={[{
           color: "#ff5722",
           transparent: true,
