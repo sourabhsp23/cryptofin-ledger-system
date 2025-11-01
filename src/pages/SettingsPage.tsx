@@ -2,21 +2,39 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useWalletStore } from '@/store/walletStore';
-import { Settings, Shield, Database, Wallet, AlertTriangle } from 'lucide-react';
+import { Settings, Shield, Database, Wallet, AlertTriangle, IndianRupee } from 'lucide-react';
+import { getCoinToInrRate, setCoinToInrRate } from '@/utils/currency';
 
 const SettingsPage = () => {
   const { toast } = useToast();
   const [advancedMode, setAdvancedMode] = useState(false);
   const [autoMining, setAutoMining] = useState(false);
   const [confirmation, setConfirmation] = useState(1);
+  const [exchangeRate, setExchangeRate] = useState<string>('');
   
   const { wallets } = useWalletStore();
   
+  useEffect(() => {
+    setExchangeRate(getCoinToInrRate().toString());
+  }, []);
+  
   const handleSave = () => {
+    const rate = parseFloat(exchangeRate);
+    if (isNaN(rate) || rate <= 0) {
+      toast({
+        title: "Invalid Exchange Rate",
+        description: "Please enter a valid positive number for the exchange rate.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setCoinToInrRate(rate);
     toast({
       title: "Settings Saved",
       description: "Your settings have been saved successfully."
@@ -63,6 +81,41 @@ const SettingsPage = () => {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Currency Settings */}
+        <Card className="crypto-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <IndianRupee className="h-5 w-5 text-crypto-blue" /> Currency Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="exchangeRate">Coin to INR Exchange Rate</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">1 Coin =</span>
+                <Input
+                  id="exchangeRate"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={exchangeRate}
+                  onChange={(e) => setExchangeRate(e.target.value)}
+                  placeholder="100"
+                  className="max-w-[150px]"
+                />
+                <span className="text-sm text-muted-foreground">₹</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Set how many Indian Rupees (₹) equal one blockchain coin. Default is ₹100 per coin.
+              </p>
+            </div>
+            
+            <Button onClick={handleSave} className="w-full mt-2">
+              Save Currency Settings
+            </Button>
+          </CardContent>
+        </Card>
+        
         {/* General Settings */}
         <Card className="crypto-card">
           <CardHeader>

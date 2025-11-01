@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Transaction } from '@/lib/blockchain/types';
 import { cn } from '@/lib/utils';
 import { ArrowUpRight, ArrowDownRight, Award } from 'lucide-react';
+import { formatInrAmount } from '@/utils/currency';
 
 interface TransactionCardProps {
   transaction: Transaction;
@@ -55,8 +56,13 @@ const TransactionCard = ({ transaction, userAddress }: TransactionCardProps) => 
               </div>
             </div>
           </div>
-          <div className={cn("font-semibold", getAmountColor())}>
-            {getAmountPrefix()}{transaction.amount} Coins
+          <div className="text-right">
+            <div className={cn("font-semibold", getAmountColor())}>
+              {getAmountPrefix()}{transaction.amount} Coins
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {formatInrAmount(transaction.amount)}
+            </div>
           </div>
         </div>
         

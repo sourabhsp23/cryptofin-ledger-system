@@ -39,6 +39,8 @@ const Dashboard = () => {
           title="Current Balance"
           value={currentWallet ? `${currentWallet.balance} Coins` : "No Wallet"}
           icon={<Wallet size={24} />}
+          showInr={!!currentWallet}
+          coinValue={currentWallet?.balance}
         />
         <StatCard
           title="Transactions"

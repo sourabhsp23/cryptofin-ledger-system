@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Wallet, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { formatInrAmount } from '@/utils/currency';
 
 interface WalletCardProps {
   publicKey: string;
@@ -72,6 +73,7 @@ const WalletCard = ({
           <div>
             <div className="text-sm text-muted-foreground mb-1">Balance</div>
             <div className="text-xl font-bold">{balance} Coins</div>
+            <div className="text-sm text-muted-foreground">{formatInrAmount(balance)}</div>
           </div>
         </div>
       </CardContent>

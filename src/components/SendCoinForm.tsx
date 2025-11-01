@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Send } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { formatInrAmount } from '@/utils/currency';
 
 const SendCoinForm = () => {
   const { toast } = useToast();
@@ -114,6 +115,11 @@ const SendCoinForm = () => {
                 Coins
               </div>
             </div>
+            {amount && parseFloat(amount) > 0 && (
+              <p className="text-sm text-muted-foreground">
+                ≈ {formatInrAmount(parseFloat(amount))}
+              </p>
+            )}
           </div>
           
           <div className="pt-2">
