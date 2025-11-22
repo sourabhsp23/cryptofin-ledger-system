@@ -27,8 +27,9 @@ const Sidebar = () => {
       <Link 
         to={to} 
         className={cn(
-          "flex items-center gap-3 px-3 py-2 rounded-md transition-colors hover:bg-crypto-surfaceLight",
-          isActive && "bg-crypto-surfaceLight text-crypto-blue"
+          "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
+          "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+          isActive && "bg-sidebar-accent text-sidebar-primary font-medium shadow-sm"
         )}
       >
         <Icon size={20} />
@@ -52,26 +53,26 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "bg-crypto-dark border-r border-border/40 transition-all duration-300 h-screen flex flex-col",
+          "bg-sidebar border-r border-sidebar-border transition-all duration-300 h-screen flex flex-col shadow-lg dark:shadow-none",
           isOpen ? "w-64" : "w-16",
           "md:relative fixed z-40",
           !isOpen && !isOpen ? "-translate-x-full md:translate-x-0" : "translate-x-0"
         )}
       >
         {/* Sidebar header */}
-        <div className="p-4 border-b border-border/40 flex items-center justify-between">
+        <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-md bg-crypto-blue flex items-center justify-center text-white font-bold">
+            <div className="h-8 w-8 rounded-md bg-primary shadow-sm flex items-center justify-center text-primary-foreground font-bold">
               BF
             </div>
-            {isOpen && <span className="font-semibold">Blockchain Finance</span>}
+            {isOpen && <span className="font-semibold text-sidebar-foreground">Blockchain Finance</span>}
           </div>
           <div className="flex items-center gap-1">
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent"
             >
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </Button>
@@ -79,7 +80,7 @@ const Sidebar = () => {
               variant="ghost" 
               size="icon" 
               onClick={toggleSidebar}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent"
             >
               {isOpen ? <X size={18} /> : <Menu size={18} />}
             </Button>
@@ -99,10 +100,10 @@ const Sidebar = () => {
         
         {/* Wallet information */}
         {currentWallet && isOpen && (
-          <div className="p-4 border-t border-border/40">
+          <div className="p-4 border-t border-sidebar-border bg-sidebar-accent/30">
             <div className="text-xs text-muted-foreground mb-1">Current Wallet</div>
-            <div className="font-mono text-sm truncate">{currentWallet.publicKey.substring(0, 20)}...</div>
-            <div className="mt-1 font-semibold">{currentWallet.balance} Coins</div>
+            <div className="font-mono text-sm truncate text-sidebar-foreground">{currentWallet.publicKey.substring(0, 20)}...</div>
+            <div className="mt-1 font-semibold text-sidebar-foreground">{currentWallet.balance} Coins</div>
           </div>
         )}
       </aside>
