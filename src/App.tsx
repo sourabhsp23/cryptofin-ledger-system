@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { ChatBot } from "./components/ChatBot";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
@@ -49,25 +50,27 @@ const App = () => {
   }, [refreshBlockchain, initializeWallet]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Layout><Dashboard /></Layout>} />
-            <Route path="/wallet" element={<Layout><WalletPage /></Layout>} />
-            <Route path="/transactions" element={<Layout><TransactionsPage /></Layout>} />
-            <Route path="/mining" element={<Layout><MiningPage /></Layout>} />
-            <Route path="/send" element={<Layout><SendPage /></Layout>} />
-            <Route path="/explorer" element={<Layout><ExplorerPage /></Layout>} />
-            <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <ChatBot />
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ThemeProvider defaultTheme="dark" storageKey="blockchain-ui-theme">
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Layout><Dashboard /></Layout>} />
+              <Route path="/wallet" element={<Layout><WalletPage /></Layout>} />
+              <Route path="/transactions" element={<Layout><TransactionsPage /></Layout>} />
+              <Route path="/mining" element={<Layout><MiningPage /></Layout>} />
+              <Route path="/send" element={<Layout><SendPage /></Layout>} />
+              <Route path="/explorer" element={<Layout><ExplorerPage /></Layout>} />
+              <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <ChatBot />
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 };
 

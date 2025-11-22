@@ -3,16 +3,18 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, Wallet, Activity, Cpu, Send, 
-  Database, Settings, Menu, X 
+  Database, Settings, Menu, X, Sun, Moon 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWalletStore } from '@/store/walletStore';
+import { useTheme } from '@/components/ThemeProvider';
 import { cn } from '@/lib/utils';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
   const { currentWallet } = useWalletStore();
+  const { theme, setTheme } = useTheme();
   
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -64,14 +66,24 @@ const Sidebar = () => {
             </div>
             {isOpen && <span className="font-semibold">Blockchain Finance</span>}
           </div>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleSidebar}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            {isOpen ? <X size={18} /> : <Menu size={18} />}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleSidebar}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {isOpen ? <X size={18} /> : <Menu size={18} />}
+            </Button>
+          </div>
         </div>
         
         {/* Navigation */}
