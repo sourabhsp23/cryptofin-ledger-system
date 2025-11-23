@@ -23,17 +23,6 @@ export const useTransactionStore = create<TransactionState>(() => ({
       return false;
     }
     
-    // Check if user is authenticated
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to create transactions.",
-        variant: "destructive"
-      });
-      return false;
-    }
-    
     const fromAddress = currentWallet.publicKey;
     const fromBalance = useBlockchainStore.getState().getWalletBalance(fromAddress);
     
