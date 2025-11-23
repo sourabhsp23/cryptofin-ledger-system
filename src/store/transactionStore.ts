@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { Transaction } from '../lib/blockchain/types';
 import { signData } from '../lib/blockchain/crypto';
-import blockchainApi from '../lib/api/blockchainApi';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { useWalletStore } from './walletStore';
 import { useBlockchainStore } from './blockchainStore';
@@ -14,7 +14,25 @@ interface TransactionState {
 export const useTransactionStore = create<TransactionState>(() => ({
   createTransaction: async (toAddress: string, amount: number) => {
     const currentWallet = useWalletStore.getState().currentWallet;
-    if (!currentWallet) return false;
+    if (!currentWallet) {
+      toast({
+        title: "No Wallet",
+        description: "Please create or select a wallet first.",
+        variant: "destructive"
+      });
+      return false;
+    }
+    
+    // Check if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to create transactions.",
+        variant: "destructive"
+      });
+      return false;
+    }
     
     const fromAddress = currentWallet.publicKey;
     const fromBalance = useBlockchainStore.getState().getWalletBalance(fromAddress);
@@ -48,24 +66,37 @@ export const useTransactionStore = create<TransactionState>(() => ({
     };
     
     try {
-      const success = await blockchainApi.createTransaction(transaction);
-      
-      if (success) {
-        console.log("Transaction created successfully");
-        toast({
-          title: "Transaction Successful",
-          description: `Sent ${amount} coins to ${toAddress.substring(0, 10)}...`,
+      // Save to Supabase
+      const { error } = await supabase
+        .from('transactions')
+        .insert({
+          from_address: transaction.fromAddress,
+          to_address: transaction.toAddress,
+          amount: transaction.amount,
+          signature: transaction.signature,
+          timestamp: transaction.timestamp,
         });
-      } else {
-        console.error("API reported transaction failure");
+      
+      if (error) {
+        console.error("Database error:", error);
         toast({
           title: "Transaction Failed",
-          description: "The server rejected the transaction. Please try again.",
+          description: "Failed to save transaction. Please try again.",
           variant: "destructive"
         });
+        return false;
       }
       
-      return success;
+      console.log("Transaction created successfully");
+      toast({
+        title: "Transaction Successful",
+        description: `Sent ${amount} coins to ${toAddress.substring(0, 10)}...`,
+      });
+      
+      // Refresh blockchain data
+      await useBlockchainStore.getState().refreshBlockchain();
+      
+      return true;
     } catch (error) {
       console.error('Error creating transaction:', error);
       toast({
