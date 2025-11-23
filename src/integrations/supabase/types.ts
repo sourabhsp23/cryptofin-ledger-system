@@ -14,7 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      transactions: {
+        Row: {
+          amount: number
+          block_hash: string | null
+          created_at: string
+          from_address: string
+          id: string
+          signature: string
+          timestamp: number
+          to_address: string
+        }
+        Insert: {
+          amount: number
+          block_hash?: string | null
+          created_at?: string
+          from_address: string
+          id?: string
+          signature: string
+          timestamp: number
+          to_address: string
+        }
+        Update: {
+          amount?: number
+          block_hash?: string | null
+          created_at?: string
+          from_address?: string
+          id?: string
+          signature?: string
+          timestamp?: number
+          to_address?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

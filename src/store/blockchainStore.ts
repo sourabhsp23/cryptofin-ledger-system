@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { Block, Transaction } from '../lib/blockchain/types';
 import { blockchain } from '../lib/blockchain/blockchain';
+import { supabase } from '@/integrations/supabase/client';
 import blockchainApi from '../lib/api/blockchainApi';
 import { useWalletStore, setWalletBalanceCalculator } from './walletStore';
 import { useMiningStore } from './miningStore';
@@ -19,29 +20,100 @@ interface BlockchainState {
 
 export const useBlockchainStore = create<BlockchainState>((set, get) => ({
   chain: blockchain.getChain(),
-  pendingTransactions: blockchain.getPendingTransactions(),
+  pendingTransactions: [],
   isConnected: false,
   
   getWalletBalance: (publicKey: string) => {
-    return blockchain.getBalanceOfAddress(publicKey);
+    const state = get();
+    let balance = 0;
+    
+    // Calculate balance from all transactions
+    state.chain.forEach(block => {
+      block.transactions.forEach(tx => {
+        if (tx.toAddress === publicKey) {
+          balance += tx.amount;
+        }
+        if (tx.fromAddress === publicKey) {
+          balance -= tx.amount;
+        }
+      });
+    });
+    
+    // Also account for pending transactions
+    state.pendingTransactions.forEach(tx => {
+      if (tx.toAddress === publicKey) {
+        balance += tx.amount;
+      }
+      if (tx.fromAddress === publicKey) {
+        balance -= tx.amount;
+      }
+    });
+    
+    return balance;
   },
   
   getTransactionsForAddress: (publicKey: string) => {
-    return blockchain.getTransactionsForAddress(publicKey);
+    const state = get();
+    const transactions: Transaction[] = [];
+    
+    // Get transactions from blocks
+    state.chain.forEach(block => {
+      block.transactions.forEach(tx => {
+        if (tx.fromAddress === publicKey || tx.toAddress === publicKey) {
+          transactions.push(tx);
+        }
+      });
+    });
+    
+    // Get pending transactions
+    state.pendingTransactions.forEach(tx => {
+      if (tx.fromAddress === publicKey || tx.toAddress === publicKey) {
+        transactions.push(tx);
+      }
+    });
+    
+    return transactions;
   },
   
   refreshBlockchain: async () => {
     try {
       console.log("Refreshing blockchain data...");
       
-      // Try to fetch data from API
-      const [chain, pendingTransactions] = await Promise.all([
-        blockchainApi.fetchBlocks(),
-        blockchainApi.fetchPendingTransactions()
-      ]);
+      // Fetch transactions from Supabase
+      const { data: dbTransactions, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .order('timestamp', { ascending: false });
       
-      console.log(`Fetched ${chain.length} blocks and ${pendingTransactions.length} pending transactions`);
-      set({ chain, pendingTransactions, isConnected: true });
+      if (error) {
+        console.error('Error fetching transactions:', error);
+        throw error;
+      }
+      
+      // Convert database transactions to blockchain format
+      const transactions: Transaction[] = (dbTransactions || []).map(tx => ({
+        fromAddress: tx.from_address,
+        toAddress: tx.to_address,
+        amount: Number(tx.amount),
+        timestamp: Number(tx.timestamp),
+        signature: tx.signature,
+      }));
+      
+      console.log(`Fetched ${transactions.length} transactions from database`);
+      
+      // Try to fetch blocks from API (for demo purposes)
+      let chain: Block[];
+      try {
+        chain = await blockchainApi.fetchBlocks();
+      } catch {
+        chain = blockchain.getChain();
+      }
+      
+      set({ 
+        chain, 
+        pendingTransactions: transactions,
+        isConnected: true 
+      });
       
       // Update wallet balances
       useWalletStore.getState().updateWalletBalances();
@@ -50,24 +122,18 @@ export const useBlockchainStore = create<BlockchainState>((set, get) => ({
     } catch (error) {
       console.error('Error refreshing blockchain data:', error);
       
-      // Since we're using mock API now, we'll still mark as connected
-      // This is for demonstration purposes only
+      // Fall back to local blockchain
       const localChain = blockchain.getChain();
-      const localPendingTransactions = blockchain.getPendingTransactions();
       
       set({ 
         chain: localChain, 
-        pendingTransactions: localPendingTransactions,
-        isConnected: true // We're now considering the mock data as "connected"
+        pendingTransactions: [],
+        isConnected: false
       });
       
-      // Update wallet balances using local data
-      useWalletStore.getState().updateWalletBalances();
-      
-      // We won't rethrow the error anymore since we're using mock data
       toast({
-        title: "Using Demo Mode",
-        description: "Connected to local blockchain data for demonstration",
+        title: "Connection Error",
+        description: "Using local blockchain data",
         variant: "default"
       });
     }
