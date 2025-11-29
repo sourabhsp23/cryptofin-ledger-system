@@ -6,6 +6,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, Send, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useWalletStore } from '@/store/walletStore';
+import { formatCoinAmount, formatInrAmount } from '@/utils/currency';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -19,6 +21,7 @@ export const ChatBot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { currentWallet, wallets } = useWalletStore();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -35,6 +38,15 @@ export const ChatBot = () => {
     setIsLoading(true);
 
     try {
+      // Prepare wallet context for the chatbot
+      const walletContext = currentWallet ? {
+        publicKey: currentWallet.publicKey,
+        balance: currentWallet.balance,
+        balanceFormatted: formatCoinAmount(currentWallet.balance),
+        balanceInr: formatInrAmount(currentWallet.balance),
+        totalWallets: wallets.length
+      } : null;
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/groq-chat`,
         {
@@ -45,6 +57,7 @@ export const ChatBot = () => {
           },
           body: JSON.stringify({
             messages: [...messages, userMessage],
+            walletContext,
           }),
         }
       );
