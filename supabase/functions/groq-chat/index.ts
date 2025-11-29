@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, walletContext } = await req.json();
     const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
 
     if (!GROQ_API_KEY) {
@@ -20,6 +20,18 @@ serve(async (req) => {
     }
 
     console.log('Sending request to Groq with messages:', messages);
+
+    // Build system prompt with wallet context
+    let systemPrompt = 'You are a helpful blockchain and cryptocurrency assistant. You help users understand blockchain technology, cryptocurrencies, mining, and wallet management. Be clear, concise, and friendly.';
+    
+    if (walletContext) {
+      systemPrompt += `\n\nCurrent Wallet Information:
+- Public Key: ${walletContext.publicKey}
+- Balance: ${walletContext.balanceFormatted} (${walletContext.balanceInr})
+- Total Wallets: ${walletContext.totalWallets}
+
+When the user asks about their wallet, balance, address, or account information, use this information to provide accurate and personalized answers.`;
+    }
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -32,7 +44,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful blockchain and cryptocurrency assistant. You help users understand blockchain technology, cryptocurrencies, mining, and wallet management. Be clear, concise, and friendly.'
+            content: systemPrompt
           },
           ...messages
         ],
