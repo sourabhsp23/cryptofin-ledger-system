@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useWalletStore } from '@/store/walletStore';
+import { useBlockchainStore } from '@/store/blockchainStore';
 import { Settings, Shield, Database, Wallet, AlertTriangle, IndianRupee } from 'lucide-react';
 import { getCoinToInrRate, setCoinToInrRate } from '@/utils/currency';
 
@@ -18,6 +19,7 @@ const SettingsPage = () => {
   const [exchangeRate, setExchangeRate] = useState<string>('');
   
   const { wallets } = useWalletStore();
+  const { chain, pendingTransactions } = useBlockchainStore();
   
   useEffect(() => {
     setExchangeRate(getCoinToInrRate().toString());
@@ -68,6 +70,34 @@ const SettingsPage = () => {
     toast({
       title: "Wallets Exported",
       description: "Your wallets have been exported as a JSON file."
+    });
+  };
+  
+  const handleExportBlockchain = () => {
+    // Create blockchain data export
+    const blockchainData = {
+      chain,
+      pendingTransactions,
+      exportDate: new Date().toISOString(),
+      totalBlocks: chain.length
+    };
+    
+    const dataStr = JSON.stringify(blockchainData, null, 2);
+    
+    // Create blob and download
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `blockchain-export-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Blockchain Exported",
+      description: `Successfully exported ${chain.length} blocks to JSON file.`
     });
   };
   
@@ -248,7 +278,7 @@ const SettingsPage = () => {
                 Validate Blockchain
               </Button>
               
-              <Button className="w-full" variant="outline">
+              <Button className="w-full" variant="outline" onClick={handleExportBlockchain}>
                 Export Blockchain
               </Button>
               
