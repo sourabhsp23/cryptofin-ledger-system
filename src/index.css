@@ -71,10 +71,10 @@
   }
 
   .dark {
-    --background: 0 0% 32.1569%;
+    --background: 215 27.907% 16.8627%;
     --foreground: 0 0% 100%;
 
-    --card: 0 0% 32.1569%;
+    --card: 215 27.907% 16.8627%;
     --card-foreground: 0 0% 100%;
 
     --popover: 0 0% 45.098%;
@@ -89,7 +89,7 @@
     --muted: 0 0% 15%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 215 16.318% 46.8627%;
+    --accent: 217 19.1176% 26.6667%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
