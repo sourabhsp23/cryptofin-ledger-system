@@ -9,6 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useWalletStore } from '@/store/walletStore';
 import { useBlockchainStore } from '@/store/blockchainStore';
 import { formatCoinAmount, formatInrAmount } from '@/utils/currency';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -193,7 +195,15 @@ export const ChatBot = () => {
                         : 'bg-muted'
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    {msg.role === 'assistant' ? (
+                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    )}
                   </div>
                 </div>
               ))}

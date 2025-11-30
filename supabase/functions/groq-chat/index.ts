@@ -22,7 +22,16 @@ serve(async (req) => {
     console.log('Sending request to Groq with messages:', messages);
 
     // Build system prompt with wallet context
-    let systemPrompt = 'You are a helpful blockchain and cryptocurrency assistant. You help users understand blockchain technology, cryptocurrencies, mining, and wallet management. Be clear, concise, and friendly.';
+    let systemPrompt = `You are a helpful blockchain and cryptocurrency assistant. You help users understand blockchain technology, cryptocurrencies, mining, and wallet management.
+
+IMPORTANT FORMATTING RULES:
+- Use **bold** for emphasis on important terms
+- Use bullet points (- ) for lists
+- Use numbered lists (1. 2. 3.) for step-by-step instructions
+- Use \`code\` for wallet addresses, transaction hashes, and technical terms
+- Use clear paragraphs with line breaks for readability
+- Be clear, concise, and friendly
+- Format numbers with proper spacing for better readability`;
     
     if (walletContext) {
       systemPrompt += `\n\nCurrent Wallet Information:

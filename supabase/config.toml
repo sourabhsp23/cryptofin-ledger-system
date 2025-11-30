@@ -2,3 +2,9 @@ project_id = "ibchzfgblpqhhyaworfn"
 
 [functions.groq-chat]
 verify_jwt = false
+
+[functions.blockchain-stats]
+verify_jwt = false
+
+[functions.validate-transaction]
+verify_jwt = false
