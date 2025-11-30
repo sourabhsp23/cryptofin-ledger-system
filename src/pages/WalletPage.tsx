@@ -1,4 +1,5 @@
 
+import { useEffect } from 'react';
 import { useWalletStore } from '@/store/walletStore';
 import { useBlockchainStore, getTransactionsForAddress } from '@/store/blockchainStore';
 import WalletCard from '@/components/WalletCard';
@@ -15,6 +16,12 @@ const WalletPage = () => {
     createWallet,
     selectWallet
   } = useWalletStore();
+  const { refreshBlockchain } = useBlockchainStore();
+  
+  // Refresh blockchain data on mount to recalculate balances
+  useEffect(() => {
+    refreshBlockchain();
+  }, []);
   
   const handleCreateWallet = () => {
     createWallet();
