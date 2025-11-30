@@ -1,4 +1,5 @@
 
+import { useEffect } from 'react';
 import { useBlockchainStore } from '@/store/blockchainStore';
 import { useWalletStore } from '@/store/walletStore';
 import { useMiningStore } from '@/store/miningStore';
@@ -12,9 +13,14 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
-  const { chain, pendingTransactions, getTransactionsForAddress } = useBlockchainStore();
+  const { chain, pendingTransactions, getTransactionsForAddress, refreshBlockchain } = useBlockchainStore();
   const { currentWallet } = useWalletStore();
   const { miningState } = useMiningStore();
+  
+  // Refresh blockchain data on mount
+  useEffect(() => {
+    refreshBlockchain();
+  }, []);
   
   // Get the latest blocks (max 3)
   const latestBlocks = [...chain].reverse().slice(0, 3);
