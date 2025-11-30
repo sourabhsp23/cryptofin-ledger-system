@@ -8,6 +8,7 @@ import StatCard from '@/components/StatCard';
 import TransactionList from '@/components/TransactionList';
 import BlockCard from '@/components/BlockCard';
 import BlockchainStatus from '@/components/BlockchainStatus';
+import BlockchainStats from '@/components/BlockchainStats';
 import SendCoinForm from '@/components/SendCoinForm';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -39,6 +40,9 @@ const Dashboard = () => {
         </p>
       </div>
       
+      {/* Blockchain Statistics */}
+      <BlockchainStats />
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
