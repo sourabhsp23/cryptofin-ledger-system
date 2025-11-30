@@ -7,6 +7,7 @@ import { MessageCircle, Send, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useWalletStore } from '@/store/walletStore';
+import { useBlockchainStore } from '@/store/blockchainStore';
 import { formatCoinAmount, formatInrAmount } from '@/utils/currency';
 
 interface Message {
@@ -22,6 +23,7 @@ export const ChatBot = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { currentWallet, wallets } = useWalletStore();
+  const { getTransactionsForAddress } = useBlockchainStore();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -39,12 +41,23 @@ export const ChatBot = () => {
 
     try {
       // Prepare wallet context for the chatbot
+      const transactions = currentWallet ? getTransactionsForAddress(currentWallet.publicKey) : [];
       const walletContext = currentWallet ? {
         publicKey: currentWallet.publicKey,
         balance: currentWallet.balance,
         balanceFormatted: formatCoinAmount(currentWallet.balance),
         balanceInr: formatInrAmount(currentWallet.balance),
-        totalWallets: wallets.length
+        totalWallets: wallets.length,
+        transactions: transactions.map(tx => ({
+          from: tx.fromAddress,
+          to: tx.toAddress,
+          amount: tx.amount,
+          amountFormatted: formatCoinAmount(tx.amount),
+          amountInr: formatInrAmount(tx.amount),
+          timestamp: new Date(tx.timestamp).toLocaleString(),
+          signature: tx.signature.substring(0, 20) + '...'
+        })),
+        totalTransactions: transactions.length
       } : null;
 
       const response = await fetch(
