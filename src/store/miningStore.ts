@@ -4,6 +4,7 @@ import { Block, MiningState } from '../lib/blockchain/types';
 import blockchainApi from '../lib/api/blockchainApi';
 import { toast } from '@/components/ui/use-toast';
 import { useWalletStore } from './walletStore';
+import { useBlockchainStore } from './blockchainStore';
 
 interface MiningStoreState {
   miningState: MiningState;
@@ -52,10 +53,6 @@ export const useMiningStore = create<MiningStoreState>((set, get) => ({
         const hashRate = Math.round(minedBlock.nonce / timeElapsed);
         
         console.log(`Block mined successfully! Hash rate: ${hashRate} H/s`);
-        toast({
-          title: "Block Mined!",
-          description: `You earned 100 coins as a mining reward.`
-        });
         
         set(state => ({
           miningState: {
@@ -64,6 +61,14 @@ export const useMiningStore = create<MiningStoreState>((set, get) => ({
             lastMinedBlock: minedBlock
           }
         }));
+        
+        // Refresh blockchain data to update balances and explorer
+        await useBlockchainStore.getState().refreshBlockchain();
+        
+        toast({
+          title: "Block Mined!",
+          description: `You earned 100 coins as a mining reward.`
+        });
       } catch (error) {
         console.error('Mining error:', error);
         toast({

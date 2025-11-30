@@ -97,6 +97,9 @@ export const useWalletStore = create<WalletState>((set, get) => ({
       balance: getWalletBalance(wallet.publicKey)
     }));
     
+    // Persist to localStorage
+    localStorage.setItem('cryptoWallets', JSON.stringify(updatedWallets));
+    
     set({ wallets: updatedWallets });
     
     // Update current wallet if exists
