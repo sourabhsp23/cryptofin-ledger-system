@@ -29,8 +29,18 @@ serve(async (req) => {
 - Public Key: ${walletContext.publicKey}
 - Balance: ${walletContext.balanceFormatted} (${walletContext.balanceInr})
 - Total Wallets: ${walletContext.totalWallets}
+- Total Transactions: ${walletContext.totalTransactions}`;
 
-When the user asks about their wallet, balance, address, or account information, use this information to provide accurate and personalized answers.`;
+      if (walletContext.transactions && walletContext.transactions.length > 0) {
+        systemPrompt += `\n\nRecent Transaction History:`;
+        walletContext.transactions.slice(0, 10).forEach((tx: any, index: number) => {
+          systemPrompt += `\n${index + 1}. ${tx.from === walletContext.publicKey ? 'Sent' : 'Received'} ${tx.amountFormatted} (${tx.amountInr})`;
+          systemPrompt += `\n   ${tx.from === walletContext.publicKey ? 'To' : 'From'}: ${tx.from === walletContext.publicKey ? tx.to : tx.from}`;
+          systemPrompt += `\n   Date: ${tx.timestamp}`;
+        });
+      }
+
+      systemPrompt += `\n\nWhen the user asks about their wallet, balance, address, transactions, transaction history, spending, or account information, use this information to provide accurate and personalized answers. You can help them understand their transaction patterns, who they've sent to or received from, and analyze their blockchain activity.`;
     }
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
