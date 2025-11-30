@@ -40,9 +40,6 @@ const Dashboard = () => {
         </p>
       </div>
       
-      {/* Blockchain Statistics */}
-      <BlockchainStats />
-
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
@@ -124,6 +121,9 @@ const Dashboard = () => {
           <SendCoinForm />
         </div>
       </div>
+
+      {/* Blockchain Statistics */}
+      <BlockchainStats />
     </div>
   );
 };
