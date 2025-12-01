@@ -44,9 +44,9 @@ serve(async (req) => {
       errors.push('Amount must be greater than zero');
     }
 
-    if (!signature || signature.length < 20) {
-      errors.push('Invalid transaction signature');
-    }
+    // if (!signature || signature.length < 20) {
+    //   errors.push('Invalid transaction signature');
+    // }
 
     // Check for duplicate transactions
     const supabase = createClient(
