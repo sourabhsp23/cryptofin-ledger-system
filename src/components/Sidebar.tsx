@@ -3,11 +3,12 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, Wallet, Activity, Cpu, Send, 
-  Database, Settings, Menu, X, Sun, Moon 
+  Database, Settings, Menu, X, Sun, Moon, LogOut, User 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWalletStore } from '@/store/walletStore';
 import { useTheme } from '@/components/ThemeProvider';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
 const Sidebar = () => {
@@ -15,6 +16,7 @@ const Sidebar = () => {
   const location = useLocation();
   const { currentWallet } = useWalletStore();
   const { theme, setTheme } = useTheme();
+  const { user, signOut } = useAuth();
   
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -98,12 +100,42 @@ const Sidebar = () => {
           <NavItem to="/settings" icon={Settings} label="Settings" />
         </nav>
         
-        {/* Wallet information */}
-        {currentWallet && isOpen && (
-          <div className="p-4 border-t border-sidebar-border bg-sidebar-accent/30">
-            <div className="text-xs text-muted-foreground mb-1">Current Wallet</div>
-            <div className="font-mono text-sm truncate text-sidebar-foreground">{currentWallet.publicKey.substring(0, 20)}...</div>
-            <div className="mt-1 font-semibold text-sidebar-foreground">{currentWallet.balance} Coins</div>
+        {/* User Profile & Wallet information */}
+        {isOpen && (
+          <div className="border-t border-sidebar-border">
+            {user && (
+              <div className="p-4 bg-sidebar-accent/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
+                    <User size={16} className="text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-sidebar-foreground truncate">
+                      {user.user_metadata?.full_name || 'User'}
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {user.email}
+                    </div>
+                  </div>
+                </div>
+                <Button 
+                  onClick={signOut}
+                  variant="outline" 
+                  size="sm"
+                  className="w-full justify-start gap-2 text-xs"
+                >
+                  <LogOut size={14} />
+                  Sign Out
+                </Button>
+              </div>
+            )}
+            {currentWallet && (
+              <div className="p-4 bg-sidebar-accent/20">
+                <div className="text-xs text-muted-foreground mb-1">Current Wallet</div>
+                <div className="font-mono text-sm truncate text-sidebar-foreground">{currentWallet.publicKey.substring(0, 20)}...</div>
+                <div className="mt-1 font-semibold text-sidebar-foreground">{currentWallet.balance} Coins</div>
+              </div>
+            )}
           </div>
         )}
       </aside>
