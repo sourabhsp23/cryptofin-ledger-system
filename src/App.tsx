@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { AuthProvider } from "@/contexts/AuthContext";
 import { ChatBot } from "./components/ChatBot";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
@@ -15,9 +14,7 @@ import MiningPage from "./pages/MiningPage";
 import SendPage from "./pages/SendPage";
 import ExplorerPage from "./pages/ExplorerPage";
 import SettingsPage from "./pages/SettingsPage";
-import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/ProtectedRoute";
 import { useEffect } from "react";
 import { useBlockchainStore } from "./store/blockchainStore";
 import { useWalletStore } from "./store/walletStore";
@@ -59,20 +56,17 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <AuthProvider>
-              <Routes>
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
-                <Route path="/wallet" element={<ProtectedRoute><Layout><WalletPage /></Layout></ProtectedRoute>} />
-                <Route path="/transactions" element={<ProtectedRoute><Layout><TransactionsPage /></Layout></ProtectedRoute>} />
-                <Route path="/mining" element={<ProtectedRoute><Layout><MiningPage /></Layout></ProtectedRoute>} />
-                <Route path="/send" element={<ProtectedRoute><Layout><SendPage /></Layout></ProtectedRoute>} />
-                <Route path="/explorer" element={<ProtectedRoute><Layout><ExplorerPage /></Layout></ProtectedRoute>} />
-                <Route path="/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <ChatBot />
-            </AuthProvider>
+            <Routes>
+              <Route path="/" element={<Layout><Dashboard /></Layout>} />
+              <Route path="/wallet" element={<Layout><WalletPage /></Layout>} />
+              <Route path="/transactions" element={<Layout><TransactionsPage /></Layout>} />
+              <Route path="/mining" element={<Layout><MiningPage /></Layout>} />
+              <Route path="/send" element={<Layout><SendPage /></Layout>} />
+              <Route path="/explorer" element={<Layout><ExplorerPage /></Layout>} />
+              <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <ChatBot />
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>

@@ -44,8 +44,7 @@ serve(async (req) => {
       errors.push('Amount must be greater than zero');
     }
 
-    // Only validate signature if it's provided (skip during real-time validation)
-    if (signature && signature.length < 20) {
+    if (!signature || signature.length < 20) {
       errors.push('Invalid transaction signature');
     }
 

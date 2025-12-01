@@ -4,7 +4,6 @@ import { Wallet } from '../lib/blockchain/types';
 import { generateKeyPair } from '../lib/blockchain/crypto';
 import blockchainApi from '../lib/api/blockchainApi';
 import { toast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 // Forward declaration to avoid circular dependency
 // We will only use this function, not the whole store
@@ -28,147 +27,61 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   currentWallet: null,
   wallets: [],
 
-  initializeWallet: async () => {
+  initializeWallet: () => {
     console.log("Initializing wallet...");
-    
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
+    const storedWallets = localStorage.getItem('cryptoWallets');
+    if (storedWallets) {
+      const wallets = JSON.parse(storedWallets);
+      console.log(`Found ${wallets.length} wallets in local storage`);
+      set({ wallets, currentWallet: wallets[0] || null });
+    } else {
+      console.log("No wallets found, creating a new default wallet");
+      const { publicKey, privateKey } = generateKeyPair();
+      const newWallet = {
+        publicKey,
+        privateKey,
+        balance: 0
+      };
       
-      if (!user) {
-        console.log("No authenticated user");
-        set({ wallets: [], currentWallet: null });
-        return;
-      }
-
-      // Fetch user's wallets from database
-      const { data: userWallets, error } = await supabase
-        .from('user_wallets')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      if (userWallets && userWallets.length > 0) {
-        const wallets = userWallets.map(w => ({
-          publicKey: w.public_key,
-          privateKey: w.private_key,
-          balance: Number(w.balance) || 0
-        }));
-        console.log(`Found ${wallets.length} wallets for user`);
-        set({ wallets, currentWallet: wallets[0] });
-      } else {
-        // Create first wallet for new user
-        console.log("No wallets found, creating first wallet");
-        const { publicKey, privateKey } = generateKeyPair();
-        
-        const { error: insertError } = await supabase
-          .from('user_wallets')
-          .insert({
-            user_id: user.id,
-            public_key: publicKey,
-            private_key: privateKey,
-            balance: 0,
-            name: 'My Wallet'
-          });
-
-        if (insertError) throw insertError;
-
-        // Create initial faucet transaction to give new wallet starting balance
-        const faucetAmount = 100;
-        const { error: txError } = await supabase
-          .from('transactions')
-          .insert({
-            from_address: 'SYSTEM_FAUCET',
-            to_address: publicKey,
-            amount: faucetAmount,
-            signature: 'FAUCET_TRANSACTION',
-            timestamp: Date.now(),
-          });
-
-        if (txError) {
-          console.error('Failed to create faucet transaction:', txError);
-        }
-
-        const newWallet = { publicKey, privateKey, balance: faucetAmount };
-        set({ wallets: [newWallet], currentWallet: newWallet });
-
-        blockchainApi.createWallet(newWallet).catch(err => {
-          console.error('Failed to save wallet to backend:', err);
+      const wallets = [newWallet];
+      localStorage.setItem('cryptoWallets', JSON.stringify(wallets));
+      set({ wallets, currentWallet: newWallet });
+      
+      blockchainApi.createWallet(newWallet).then(() => {
+        console.log("Default wallet saved to backend");
+      }).catch(err => {
+        console.error('Failed to save wallet to backend:', err);
+        toast({
+          title: "Error",
+          description: "Could not save wallet to backend.",
+          variant: "destructive"
         });
-      }
-    } catch (err) {
-      console.error('Error initializing wallet:', err);
-      toast({
-        title: "Error",
-        description: "Could not load wallets from database.",
-        variant: "destructive"
       });
     }
   },
 
-  createWallet: async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to create a wallet.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      const { publicKey, privateKey } = generateKeyPair();
-      
-      const { error } = await supabase
-        .from('user_wallets')
-        .insert({
-          user_id: user.id,
-          public_key: publicKey,
-          private_key: privateKey,
-          balance: 0,
-          name: `Wallet ${get().wallets.length + 1}`
-        });
-
-      if (error) throw error;
-
-      // Create initial faucet transaction to give new wallet starting balance
-      const faucetAmount = 100;
-      const { error: txError } = await supabase
-        .from('transactions')
-        .insert({
-          from_address: 'SYSTEM_FAUCET',
-          to_address: publicKey,
-          amount: faucetAmount,
-          signature: 'FAUCET_TRANSACTION',
-          timestamp: Date.now(),
-        });
-
-      if (txError) {
-        console.error('Failed to create faucet transaction:', txError);
-      }
-
-      const newWallet = { publicKey, privateKey, balance: faucetAmount };
-      const wallets = [...get().wallets, newWallet];
-      set({ wallets, currentWallet: newWallet });
-
-      blockchainApi.createWallet(newWallet).catch(err => {
-        console.error('Failed to save wallet to backend:', err);
-      });
-
-      toast({
-        title: "Wallet Created",
-        description: "Your new wallet has been created successfully."
-      });
-    } catch (err) {
-      console.error('Error creating wallet:', err);
+  createWallet: () => {
+    const { publicKey, privateKey } = generateKeyPair();
+    const newWallet = {
+      publicKey,
+      privateKey,
+      balance: 0
+    };
+    
+    const wallets = [...get().wallets, newWallet];
+    localStorage.setItem('cryptoWallets', JSON.stringify(wallets));
+    set({ wallets, currentWallet: newWallet });
+    
+    blockchainApi.createWallet(newWallet).then(() => {
+      console.log("New wallet saved to backend");
+    }).catch(err => {
+      console.error('Failed to save wallet to backend:', err);
       toast({
         title: "Error Creating Wallet",
-        description: "Could not save the wallet to database.",
+        description: "Could not save the wallet to the blockchain server.",
         variant: "destructive"
       });
-    }
+    });
   },
 
   selectWallet: (publicKey: string) => {
@@ -178,11 +91,14 @@ export const useWalletStore = create<WalletState>((set, get) => ({
     }
   },
 
-  updateWalletBalances: async () => {
+  updateWalletBalances: () => {
     const updatedWallets = get().wallets.map(wallet => ({
       ...wallet,
       balance: getWalletBalance(wallet.publicKey)
     }));
+    
+    // Persist to localStorage
+    localStorage.setItem('cryptoWallets', JSON.stringify(updatedWallets));
     
     set({ wallets: updatedWallets });
     
@@ -195,22 +111,6 @@ export const useWalletStore = create<WalletState>((set, get) => ({
       if (updatedCurrentWallet) {
         set({ currentWallet: updatedCurrentWallet });
       }
-    }
-
-    // Sync balances to database
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      for (const wallet of updatedWallets) {
-        await supabase
-          .from('user_wallets')
-          .update({ balance: wallet.balance })
-          .eq('user_id', user.id)
-          .eq('public_key', wallet.publicKey);
-      }
-    } catch (err) {
-      console.error('Error syncing wallet balances:', err);
     }
   }
 }));
