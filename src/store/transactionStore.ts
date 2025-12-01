@@ -28,14 +28,14 @@ export const useTransactionStore = create<TransactionState>(() => ({
     
     console.log(`Creating transaction: ${fromAddress} → ${toAddress}, amount: ${amount}, balance: ${fromBalance}`);
     
-    // if (fromBalance < amount) {
-    //   toast({
-    //     title: "Insufficient Funds",
-    //     description: `Your wallet balance (${fromBalance}) is less than the amount (${amount}).`,
-    //     variant: "destructive"
-    //   });
-    //   return false;
-    // }
+    if (fromBalance < amount) {
+      toast({
+        title: "Insufficient Funds",
+        description: `Your wallet balance (${fromBalance}) is less than the amount (${amount}).`,
+        variant: "destructive"
+      });
+      return false;
+    }
     
     const transactionData = {
       fromAddress,
