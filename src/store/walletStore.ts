@@ -73,7 +73,23 @@ export const useWalletStore = create<WalletState>((set, get) => ({
 
         if (insertError) throw insertError;
 
-        const newWallet = { publicKey, privateKey, balance: 0 };
+        // Create initial faucet transaction to give new wallet starting balance
+        const faucetAmount = 100;
+        const { error: txError } = await supabase
+          .from('transactions')
+          .insert({
+            from_address: 'SYSTEM_FAUCET',
+            to_address: publicKey,
+            amount: faucetAmount,
+            signature: 'FAUCET_TRANSACTION',
+            timestamp: Date.now(),
+          });
+
+        if (txError) {
+          console.error('Failed to create faucet transaction:', txError);
+        }
+
+        const newWallet = { publicKey, privateKey, balance: faucetAmount };
         set({ wallets: [newWallet], currentWallet: newWallet });
 
         blockchainApi.createWallet(newWallet).catch(err => {
@@ -117,7 +133,23 @@ export const useWalletStore = create<WalletState>((set, get) => ({
 
       if (error) throw error;
 
-      const newWallet = { publicKey, privateKey, balance: 0 };
+      // Create initial faucet transaction to give new wallet starting balance
+      const faucetAmount = 100;
+      const { error: txError } = await supabase
+        .from('transactions')
+        .insert({
+          from_address: 'SYSTEM_FAUCET',
+          to_address: publicKey,
+          amount: faucetAmount,
+          signature: 'FAUCET_TRANSACTION',
+          timestamp: Date.now(),
+        });
+
+      if (txError) {
+        console.error('Failed to create faucet transaction:', txError);
+      }
+
+      const newWallet = { publicKey, privateKey, balance: faucetAmount };
       const wallets = [...get().wallets, newWallet];
       set({ wallets, currentWallet: newWallet });
 
